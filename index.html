@@ -35,27 +35,25 @@
       controls = new OrbitControls(camera, renderer.domElement);
 
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(ambientLight);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(5, 10, 7.5);
+      scene.add(light);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      directionalLight.position.set(5, 10, 7.5);
-      scene.add(directionalLight);
-
-      // Load GLB model from same folder
+      // Load GLB model
       const loader = new GLTFLoader();
       loader.load('threetest.glb', function (gltf) {
-        gltf.scene.traverse((child) => {
+        gltf.scene.traverse(child => {
           if (child.isMesh) {
-            child.name = 'zoomTarget'; // Optional tagging
+            child.name = 'zoomTarget';
           }
         });
         scene.add(gltf.scene);
       });
 
-      // Events
-      window.addEventListener('click', onClick, false);
-      window.addEventListener('resize', onWindowResize, false);
+      // Click event
+      window.addEventListener('click', onClick);
+      window.addEventListener('resize', onWindowResize);
     }
 
     function onClick(event) {
@@ -63,7 +61,6 @@
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-
       const intersects = raycaster.intersectObjects(scene.children, true);
       if (intersects.length > 0) {
         const obj = intersects[0].object;
@@ -74,8 +71,7 @@
     function zoomToObject(object) {
       const target = object.getWorldPosition(new THREE.Vector3());
       const direction = new THREE.Vector3().subVectors(camera.position, target).normalize();
-      const newPos = target.clone().add(direction.multiplyScalar(2)); // Adjust zoom distance
-
+      const newPos = target.clone().add(direction.multiplyScalar(2));
       const start = camera.position.clone();
       let t = 0;
       const duration = 30;
